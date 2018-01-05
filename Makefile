@@ -62,7 +62,12 @@ bin/$(NAME): $(SOURCES)
 .PHONY: install
 ## install
 install:
-	go install $(LDFLAGS)
+	go install \
+		-a -v \
+		-tags netgo \
+		-installsuffix netgo \
+		-ldflags "$(LDFLAGS)" \
+		.
 
 .PHONY: clean
 ## clean
