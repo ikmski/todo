@@ -23,12 +23,38 @@ const (
 
 func list(c *cli.Context) error {
 
-	NewTasksFromFile(getTodoFilePath())
+	ts, err := loadTasks(getTodoFilePath())
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	for _, t := range ts.Tasks {
+		if t.Status == TaskStatus_Todo {
+			fmt.Printf("\u2610  %03d: %s\n", t.ID, t.Title)
+		} else if t.Status == TaskStatus_Done {
+			fmt.Printf("\u2611  %03d: %s\n", t.ID, t.Title)
+		}
+	}
 
 	return nil
 }
 
 func add(c *cli.Context) error {
+
+	t := newTask(getTodoFilePath())
+	err := t.interactiveEdit()
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	err = t.save(getTodoFilePath())
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
 	return nil
 }
 
