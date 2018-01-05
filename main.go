@@ -219,6 +219,11 @@ func main() {
 	if err != nil {
 
 		config = getDefaultConfig()
+		err = config.save(configFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 
 	} else {
 
