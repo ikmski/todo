@@ -11,8 +11,8 @@ import (
 type TaskStatus int
 
 const (
-	TaskStatus_Todo TaskStatus = 0
-	TaskStatus_Done TaskStatus = 1
+	TaskStatusTodo TaskStatus = 0
+	TaskStatusDone TaskStatus = 1
 )
 
 type Task struct {
@@ -30,7 +30,7 @@ func newTask(file string) *Task {
 
 	t := new(Task)
 	t.ID = issueTaskID(file)
-	t.Status = TaskStatus_Todo
+	t.Status = TaskStatusTodo
 
 	return t
 }
@@ -109,19 +109,21 @@ func (t *Task) interactiveEdit() error {
 
 func (ts *Tasks) interactiveDelete(id int) (bool, error) {
 
-	var task *Task = nil
-	for _, t := range ts.Tasks {
+	tasks := ts.Tasks
+
+	idx := -1
+	for i, t := range ts.Tasks {
 		if t.ID == id {
-			task = &t
+			idx = i
 			break
 		}
 	}
-	if task == nil {
+	if idx == -1 {
 		return false, fmt.Errorf("task not found")
 	}
 
 	s := ""
-	fmt.Printf("Delete %03d %s ? (y/N)", task.ID, task.Title)
+	fmt.Printf("Delete task %03d: %s ? (y/N) ", tasks[idx].ID, tasks[idx].Title)
 	fmt.Scanln(&s)
 	s = strings.TrimSpace(s)
 	s = strings.ToLower(s)
@@ -157,19 +159,19 @@ func (ts *Tasks) interactiveDone(id int) (bool, error) {
 		return false, fmt.Errorf("task not found")
 	}
 
-	if tasks[idx].Status == TaskStatus_Done {
+	if tasks[idx].Status == TaskStatusDone {
 		return false, fmt.Errorf("task status is already DONE")
 	}
 
 	s := ""
-	fmt.Printf("Make task done %03d %s ? (y/N)", tasks[idx].ID, tasks[idx].Title)
+	fmt.Printf("Done task %03d: %s ? (y/N) ", tasks[idx].ID, tasks[idx].Title)
 	fmt.Scanln(&s)
 	s = strings.TrimSpace(s)
 	s = strings.ToLower(s)
 
 	if s == "y" || s == "yes" {
 
-		tasks[idx].Status = TaskStatus_Done
+		tasks[idx].Status = TaskStatusDone
 		return true, nil
 	}
 
@@ -191,19 +193,19 @@ func (ts *Tasks) interactiveUndone(id int) (bool, error) {
 		return false, fmt.Errorf("task not found")
 	}
 
-	if tasks[idx].Status == TaskStatus_Todo {
+	if tasks[idx].Status == TaskStatusTodo {
 		return false, fmt.Errorf("task status is already TODO")
 	}
 
 	s := ""
-	fmt.Printf("Undo done task %03d %s ? (y/N)", tasks[idx].ID, tasks[idx].Title)
+	fmt.Printf("Undone task %03d: %s ? (y/N) ", tasks[idx].ID, tasks[idx].Title)
 	fmt.Scanln(&s)
 	s = strings.TrimSpace(s)
 	s = strings.ToLower(s)
 
 	if s == "y" || s == "yes" {
 
-		tasks[idx].Status = TaskStatus_Todo
+		tasks[idx].Status = TaskStatusTodo
 		return true, nil
 	}
 
