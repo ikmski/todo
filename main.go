@@ -19,7 +19,7 @@ var config globalConfig
 
 const (
 	configFileName = "config.toml"
-	todoFileName   = ".todo"
+	todoFileName   = "todo.yaml"
 )
 
 func list(c *cli.Context) error {
