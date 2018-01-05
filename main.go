@@ -31,9 +31,9 @@ func list(c *cli.Context) error {
 
 	for _, t := range ts.Tasks {
 		if t.Status == TaskStatus_Todo {
-			fmt.Printf("\u2610  %03d: %s\n", t.ID, t.Title)
+			fmt.Printf("\u2610 %03d: %s\n  %s\n\n", t.ID, t.Title, t.Detail)
 		} else if t.Status == TaskStatus_Done {
-			fmt.Printf("\u2611  %03d: %s\n", t.ID, t.Title)
+			fmt.Printf("\u2611 %03d: %s\n  %s\n\n", t.ID, t.Title, t.Detail)
 		}
 	}
 

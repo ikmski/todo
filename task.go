@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -11,25 +10,15 @@ import (
 type TaskStatus int
 
 const (
-	TaskStatus_Todo    TaskStatus = 0
-	TaskStatus_Done    TaskStatus = 1
-	TaskStatus_Deleted TaskStatus = 2
+	TaskStatus_Todo TaskStatus = 0
+	TaskStatus_Done TaskStatus = 1
 )
 
-var TaskStatusName = map[int]string{
-	0: "TODO",
-	1: "DONE",
-	2: "DELETED",
-}
-
 type Task struct {
-	ID          int        `yaml:"id"`
-	Status      TaskStatus `yaml:"status"`
-	Title       string     `yaml:"title"`
-	Detail      string     `yaml:"detail"`
-	Tags        []string   `yaml:"tags"`
-	Deadline    string     `yaml:"deadline"`
-	CompletedAt string     `yaml:"completed_at"`
+	ID     int        `yaml:"id"`
+	Title  string     `yaml:"title"`
+	Detail string     `yaml:"detail"`
+	Status TaskStatus `yaml:"status"`
 }
 
 type Tasks struct {
@@ -113,13 +102,6 @@ func (t *Task) interactiveEdit() error {
 
 	fmt.Printf("Detail:[%s] ", t.Detail)
 	fmt.Scanln(&t.Detail)
-
-	fmt.Printf("Tags:%v ", t.Tags)
-	var tags = ""
-	fmt.Scanln(&tags)
-	if tags != "" {
-		t.Tags = strings.Split(tags, ",")
-	}
 
 	return nil
 }
