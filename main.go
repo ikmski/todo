@@ -43,17 +43,27 @@ func list(c *cli.Context) error {
 
 func add(c *cli.Context) error {
 
-	t := newTask(getTodoFilePath())
-	err := t.interactiveEdit()
+	file := getTodoFilePath()
+
+	ts, err := loadTasks(file)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
 
-	err = t.save(getTodoFilePath())
+	t := ts.newTask()
+	save, err := t.interactiveEdit()
 	if err != nil {
 		fmt.Println(err)
 		return nil
+	}
+
+	if save {
+		err = ts.save(file)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
 	}
 
 	return nil
@@ -71,7 +81,9 @@ func delete(c *cli.Context) error {
 		return nil
 	}
 
-	ts, err := loadTasks(getTodoFilePath())
+	file := getTodoFilePath()
+
+	ts, err := loadTasks(file)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -84,7 +96,7 @@ func delete(c *cli.Context) error {
 	}
 
 	if save {
-		err = ts.save(getTodoFilePath())
+		err = ts.save(file)
 		if err != nil {
 			fmt.Println(err)
 			return nil
@@ -106,7 +118,9 @@ func done(c *cli.Context) error {
 		return nil
 	}
 
-	ts, err := loadTasks(getTodoFilePath())
+	file := getTodoFilePath()
+
+	ts, err := loadTasks(file)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -119,7 +133,7 @@ func done(c *cli.Context) error {
 	}
 
 	if save {
-		err = ts.save(getTodoFilePath())
+		err = ts.save(file)
 		if err != nil {
 			fmt.Println(err)
 			return nil
@@ -141,7 +155,9 @@ func undone(c *cli.Context) error {
 		return nil
 	}
 
-	ts, err := loadTasks(getTodoFilePath())
+	file := getTodoFilePath()
+
+	ts, err := loadTasks(file)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -154,7 +170,7 @@ func undone(c *cli.Context) error {
 	}
 
 	if save {
-		err = ts.save(getTodoFilePath())
+		err = ts.save(file)
 		if err != nil {
 			fmt.Println(err)
 			return nil

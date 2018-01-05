@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
@@ -26,16 +28,15 @@ type Tasks struct {
 	Tasks []Task `yaml:"tasks"`
 }
 
-func newTask(file string) *Task {
-
-	t := new(Task)
-	t.ID = issueTaskID(file)
-	t.Status = TaskStatusTodo
-
-	return t
-}
-
 func loadTasks(file string) (*Tasks, error) {
+
+	_, err := os.Stat(file)
+	if err != nil {
+		err = createTodoFile(file)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -51,21 +52,37 @@ func loadTasks(file string) (*Tasks, error) {
 	return &t, nil
 }
 
-func (t *Task) save(file string) error {
+func createTodoFile(file string) error {
 
-	ts, err := loadTasks(file)
+	dir := filepath.Dir(file)
+	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return err
 	}
 
-	ts.Tasks = append(ts.Tasks, *t)
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-	return ts.save(file)
+	return nil
 }
 
-func (t *Tasks) save(file string) error {
+func (ts *Tasks) newTask() *Task {
 
-	d, err := yaml.Marshal(t)
+	t := new(Task)
+	t.ID = ts.issueTaskID()
+	t.Status = TaskStatusTodo
+
+	ts.Tasks = append(ts.Tasks, *t)
+
+	return t
+}
+
+func (ts *Tasks) save(file string) error {
+
+	d, err := yaml.Marshal(ts)
 	if err != nil {
 		return err
 	}
@@ -78,12 +95,7 @@ func (t *Tasks) save(file string) error {
 	return nil
 }
 
-func issueTaskID(file string) int {
-
-	ts, err := loadTasks(file)
-	if err != nil {
-		return 0
-	}
+func (ts *Tasks) issueTaskID() int {
 
 	id := 0
 	for _, t := range ts.Tasks {
@@ -96,15 +108,27 @@ func issueTaskID(file string) int {
 	return id
 }
 
-func (t *Task) interactiveEdit() error {
+func (t *Task) interactiveEdit() (bool, error) {
 
+	edit := false
+
+	s := ""
 	fmt.Printf("title:[%s] ", t.Title)
-	fmt.Scanln(&t.Title)
+	fmt.Scanln(&s)
+	if s != "" {
+		t.Title = s
+		edit = true
+	}
 
+	s = ""
 	fmt.Printf("Detail:[%s] ", t.Detail)
-	fmt.Scanln(&t.Detail)
+	fmt.Scanln(&s)
+	if s != "" {
+		t.Detail = s
+		edit = true
+	}
 
-	return nil
+	return edit, nil
 }
 
 func (ts *Tasks) interactiveDelete(id int) (bool, error) {
