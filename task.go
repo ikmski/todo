@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -135,19 +136,18 @@ func (ts *Tasks) interactiveEdit(id int) (bool, error) {
 
 	edit := false
 
-	s := ""
+	s := bufio.NewScanner(os.Stdin)
 	fmt.Printf("title:[%s] ", tasks[idx].Title)
-	fmt.Scanln(&s)
-	if s != "" {
-		tasks[idx].Title = s
+	s.Scan()
+	if s.Text() != "" {
+		tasks[idx].Title = s.Text()
 		edit = true
 	}
 
-	s = ""
 	fmt.Printf("Detail:[%s] ", tasks[idx].Detail)
-	fmt.Scanln(&s)
-	if s != "" {
-		tasks[idx].Detail = s
+	s.Scan()
+	if s.Text() != "" {
+		tasks[idx].Detail = s.Text()
 		edit = true
 	}
 
