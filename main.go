@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 	"github.com/urfave/cli"
@@ -59,6 +60,37 @@ func add(c *cli.Context) error {
 }
 
 func delete(c *cli.Context) error {
+
+	if c.NArg() < 1 {
+		return fmt.Errorf("argument is required")
+	}
+
+	targetID, err := strconv.Atoi(c.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	ts, err := loadTasks(getTodoFilePath())
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	save, err := ts.interactiveDelete(targetID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	if save {
+		err = ts.save(getTodoFilePath())
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+	}
+
 	return nil
 }
 

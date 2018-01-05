@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -104,4 +105,39 @@ func (t *Task) interactiveEdit() error {
 	fmt.Scanln(&t.Detail)
 
 	return nil
+}
+
+func (ts *Tasks) interactiveDelete(id int) (bool, error) {
+
+	var task *Task = nil
+	for _, t := range ts.Tasks {
+		if t.ID == id {
+			task = &t
+			break
+		}
+	}
+	if task == nil {
+		return false, fmt.Errorf("task not found")
+	}
+
+	s := ""
+	fmt.Printf("Delete %03d %s ? (y/N)", task.ID, task.Title)
+	fmt.Scanln(&s)
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+
+	if s == "y" || s == "yes" {
+
+		result := []Task{}
+		for _, t := range ts.Tasks {
+			if t.ID != id {
+				result = append(result, t)
+			}
+		}
+
+		ts.Tasks = result
+		return true, nil
+	}
+
+	return false, nil
 }
