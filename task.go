@@ -80,6 +80,22 @@ func (ts *Tasks) newTask() *Task {
 	return t
 }
 
+func (ts *Tasks) getTaskIndex(id int) (int, error) {
+
+	idx := -1
+	for i, t := range ts.Tasks {
+		if t.ID == id {
+			idx = i
+			break
+		}
+	}
+	if idx == -1 {
+		return idx, fmt.Errorf("task not found")
+	}
+
+	return idx, nil
+}
+
 func (ts *Tasks) save(file string) error {
 
 	d, err := yaml.Marshal(ts)
@@ -108,23 +124,30 @@ func (ts *Tasks) issueTaskID() int {
 	return id
 }
 
-func (t *Task) interactiveEdit() (bool, error) {
+func (ts *Tasks) interactiveEdit(id int) (bool, error) {
+
+	tasks := ts.Tasks
+
+	idx, err := ts.getTaskIndex(id)
+	if err != nil {
+		return false, err
+	}
 
 	edit := false
 
 	s := ""
-	fmt.Printf("title:[%s] ", t.Title)
+	fmt.Printf("title:[%s] ", tasks[idx].Title)
 	fmt.Scanln(&s)
 	if s != "" {
-		t.Title = s
+		tasks[idx].Title = s
 		edit = true
 	}
 
 	s = ""
-	fmt.Printf("Detail:[%s] ", t.Detail)
+	fmt.Printf("Detail:[%s] ", tasks[idx].Detail)
 	fmt.Scanln(&s)
 	if s != "" {
-		t.Detail = s
+		tasks[idx].Detail = s
 		edit = true
 	}
 
@@ -135,15 +158,9 @@ func (ts *Tasks) interactiveDelete(id int) (bool, error) {
 
 	tasks := ts.Tasks
 
-	idx := -1
-	for i, t := range ts.Tasks {
-		if t.ID == id {
-			idx = i
-			break
-		}
-	}
-	if idx == -1 {
-		return false, fmt.Errorf("task not found")
+	idx, err := ts.getTaskIndex(id)
+	if err != nil {
+		return false, err
 	}
 
 	s := ""
@@ -172,15 +189,9 @@ func (ts *Tasks) interactiveDone(id int) (bool, error) {
 
 	tasks := ts.Tasks
 
-	idx := -1
-	for i, t := range ts.Tasks {
-		if t.ID == id {
-			idx = i
-			break
-		}
-	}
-	if idx == -1 {
-		return false, fmt.Errorf("task not found")
+	idx, err := ts.getTaskIndex(id)
+	if err != nil {
+		return false, err
 	}
 
 	if tasks[idx].Status == TaskStatusDone {
@@ -206,15 +217,9 @@ func (ts *Tasks) interactiveUndone(id int) (bool, error) {
 
 	tasks := ts.Tasks
 
-	idx := -1
-	for i, t := range ts.Tasks {
-		if t.ID == id {
-			idx = i
-			break
-		}
-	}
-	if idx == -1 {
-		return false, fmt.Errorf("task not found")
+	idx, err := ts.getTaskIndex(id)
+	if err != nil {
+		return false, err
 	}
 
 	if tasks[idx].Status == TaskStatusTodo {

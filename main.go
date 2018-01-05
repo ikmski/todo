@@ -52,7 +52,44 @@ func add(c *cli.Context) error {
 	}
 
 	t := ts.newTask()
-	save, err := t.interactiveEdit()
+	save, err := ts.interactiveEdit(t.ID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	if save {
+		err = ts.save(file)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func edit(c *cli.Context) error {
+
+	if c.NArg() < 1 {
+		return fmt.Errorf("argument is required")
+	}
+
+	targetID, err := strconv.Atoi(c.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	file := getTodoFilePath()
+
+	ts, err := loadTasks(file)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	save, err := ts.interactiveEdit(targetID)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -275,6 +312,12 @@ func main() {
 			Aliases: []string{"d"},
 			Usage:   "delete task",
 			Action:  delete,
+		},
+		{
+			Name:    "edit",
+			Aliases: []string{"e"},
+			Usage:   "edit task",
+			Action:  edit,
 		},
 		{
 			Name:   "done",
