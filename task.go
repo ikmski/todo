@@ -141,3 +141,71 @@ func (ts *Tasks) interactiveDelete(id int) (bool, error) {
 
 	return false, nil
 }
+
+func (ts *Tasks) interactiveDone(id int) (bool, error) {
+
+	tasks := ts.Tasks
+
+	idx := -1
+	for i, t := range ts.Tasks {
+		if t.ID == id {
+			idx = i
+			break
+		}
+	}
+	if idx == -1 {
+		return false, fmt.Errorf("task not found")
+	}
+
+	if tasks[idx].Status == TaskStatus_Done {
+		return false, fmt.Errorf("task status is already DONE")
+	}
+
+	s := ""
+	fmt.Printf("Make task done %03d %s ? (y/N)", tasks[idx].ID, tasks[idx].Title)
+	fmt.Scanln(&s)
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+
+	if s == "y" || s == "yes" {
+
+		tasks[idx].Status = TaskStatus_Done
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (ts *Tasks) interactiveUndone(id int) (bool, error) {
+
+	tasks := ts.Tasks
+
+	idx := -1
+	for i, t := range ts.Tasks {
+		if t.ID == id {
+			idx = i
+			break
+		}
+	}
+	if idx == -1 {
+		return false, fmt.Errorf("task not found")
+	}
+
+	if tasks[idx].Status == TaskStatus_Todo {
+		return false, fmt.Errorf("task status is already TODO")
+	}
+
+	s := ""
+	fmt.Printf("Undo done task %03d %s ? (y/N)", tasks[idx].ID, tasks[idx].Title)
+	fmt.Scanln(&s)
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+
+	if s == "y" || s == "yes" {
+
+		tasks[idx].Status = TaskStatus_Todo
+		return true, nil
+	}
+
+	return false, nil
+}

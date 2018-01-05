@@ -95,10 +95,72 @@ func delete(c *cli.Context) error {
 }
 
 func done(c *cli.Context) error {
+
+	if c.NArg() < 1 {
+		return fmt.Errorf("argument is required")
+	}
+
+	targetID, err := strconv.Atoi(c.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	ts, err := loadTasks(getTodoFilePath())
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	save, err := ts.interactiveDone(targetID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	if save {
+		err = ts.save(getTodoFilePath())
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+	}
+
 	return nil
 }
 
 func undone(c *cli.Context) error {
+
+	if c.NArg() < 1 {
+		return fmt.Errorf("argument is required")
+	}
+
+	targetID, err := strconv.Atoi(c.Args().Get(0))
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	ts, err := loadTasks(getTodoFilePath())
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	save, err := ts.interactiveUndone(targetID)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	if save {
+		err = ts.save(getTodoFilePath())
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+	}
+
 	return nil
 }
 
@@ -205,9 +267,6 @@ func main() {
 			Action:  undone,
 		},
 	}
-
-	// TODO delete
-	app.Action = list
 
 	app.RunAndExitOnError()
 }
