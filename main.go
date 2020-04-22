@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/urfave/cli"
@@ -241,9 +243,16 @@ func getTodoFilePath() string {
 
 	filePath := ""
 
+	user, err := user.Current()
+	if err != nil {
+		fmt.Println(err)
+		return filePath
+	}
+
 	if config.TodoDir != "" {
 
-		filePath = filepath.Join(config.TodoDir, todoFileName)
+		dir := strings.Replace(config.TodoDir, "~", user.HomeDir, -1)
+		filePath = filepath.Join(dir, todoFileName)
 
 	} else {
 
